@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projekt 5 - Vereinfachter Login</title>
+    <style>
+        /* Allgemeines Styling bleibt gleich */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+            background: #2a2a2a;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #ffffff;
+            margin-bottom: 20px;
+        }
+
+        .login-section, .form-section, .table-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #333333;
+            border: 1px solid #444444;
+        }
+
+        .button {
+            background-color: #444444;
+            color: #e0e0e0;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+            width: 100%;
+            font-size: 1em;
+        }
+
+        .button:hover {
+            background-color: #555555;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        table th, table td {
+            border: 1px solid #444444;
+            padding: 10px;
+            text-align: left;
+            color: #e0e0e0;
+        }
+
+        table th {
+            background-color: #444444;
+        }
+
+        .delete-btn {
+            color: #e74c3c;
+            cursor: pointer;
+        }
+
+        .delete-btn:hover {
+            color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Projekt 5 - Vereinfachter Login</h1>
+
+    <!-- Einziger Login-Bereich -->
+    <div class="login-section" id="loginSection">
+        <h2>Login</h2>
+        <input type="text" id="username" placeholder="Benutzername">
+        <input type="password" id="password" placeholder="Passwort">
+        <button class="button" onclick="login()">Einloggen</button>
+    </div>
+
+    <!-- Formular für Mitarbeiter -->
+    <div class="form-section" id="employeeForm" style="display: none;">
+        <h2>Neuen Kunden hinzufügen (Mitarbeiter)</h2>
+        <input type="text" id="customerFirstName" placeholder="Vorname">
+        <input type="text" id="customerLastName" placeholder="Nachname">
+        <input type="text" id="customerAddress" placeholder="Adresse">
+        <input type="text" id="customerEmail" placeholder="E-Mail">
+        <input type="text" id="customerIBAN" placeholder="IBAN">
+        <button class="button" onclick="addCustomer()">Kunden hinzufügen</button>
+    </div>
+
+    <!-- Formular für Admin -->
+    <div class="form-section" id="adminForm" style="display: none;">
+        <h2>Neuen Mitarbeiter hinzufügen (Admin)</h2>
+        <input type="text" id="employeeFirstName" placeholder="Vorname">
+        <input type="text" id="employeeLastName" placeholder="Nachname">
+        <input type="text" id="employeeAddress" placeholder="Adresse">
+        <input type="text" id="employeeEmail" placeholder="E-Mail">
+        <input type="text" id="employeeIBAN" placeholder="IBAN">
+        <button class="button" onclick="addEmployee()">Mitarbeiter hinzufügen</button>
+    </div>
+
+    <!-- Tabellenbereich -->
+    <div class="table-section" id="dataTables" style="display: none;">
+        <h2>Personen</h2>
+        <table id="personTable">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Vorname</th>
+                <th>Nachname</th>
+                <th>Adresse</th>
+                <th>E-Mail</th>
+                <th>IBAN</th>
+                <th>Typ</th>
+                <th>Aktionen</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    let persons = [];
+    let personId = 1;
+    let currentUserRole = null;
+
+    function login() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        if (username === 'admin' && password === 'admin123') {
+            currentUserRole = 'admin';
+            alert('Admin erfolgreich eingeloggt!');
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('adminForm').style.display = 'block';
+            document.getElementById('dataTables').style.display = 'block';
+        } else if (username === 'mitarbeiter' && password === 'mitarbeiter123') {
+            currentUserRole = 'mitarbeiter';
+            alert('Mitarbeiter erfolgreich eingeloggt!');
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('employeeForm').style.display = 'block';
+            document.getElementById('dataTables').style.display = 'block';
+        } else {
+            alert('Ungültige Anmeldedaten!');
+        }
+    }
+
+    function addEmployee() {
+        if (currentUserRole !== 'admin') {
+            alert('Nur Admins können Mitarbeiter hinzufügen!');
+            return;
+        }
+        const firstName = document.getElementById('employeeFirstName').value;
+        const lastName = document.getElementById('employeeLastName').value;
+        const address = document.getElementById('employeeAddress').value;
+        const email = document.getElementById('employeeEmail').value;
+        const iban = document.getElementById('employeeIBAN').value;
+
+        if (firstName && lastName && address && email && iban) {
+            persons.push({ id: personId++, firstName, lastName, address, email, iban, type: 'Mitarbeiter' });
+            renderPersons();
+        } else {
+            alert('Bitte alle Felder ausfüllen!');
+        }
+    }
+
+    function addCustomer() {
+        if (currentUserRole !== 'mitarbeiter') {
+            alert('Nur Mitarbeiter können Kunden hinzufügen!');
+            return;
+        }
+        const firstName = document.getElementById('customerFirstName').value;
+        const lastName = document.getElementById('customerLastName').value;
+        const address = document.getElementById('customerAddress').value;
+        const email = document.getElementById('customerEmail').value;
+        const iban = document.getElementById('customerIBAN').value;
+
+        if (firstName && lastName && address && email && iban) {
+            persons.push({ id: personId++, firstName, lastName, address, email, iban, type: 'Kunde' });
+            renderPersons();
+        } else {
+            alert('Bitte alle Felder ausfüllen!');
+        }
+    }
+
+    function renderPersons() {
+        const tableBody = document.getElementById('personTable').querySelector('tbody');
+        tableBody.innerHTML = '';
+        persons.forEach(person => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${person.id}</td>
+                <td>${person.firstName}</td>
+                <td>${person.lastName}</td>
+                <td>${person.address}</td>
+                <td>${person.email}</td>
+                <td>${person.iban}</td>
+                <td>${person.type}</td>
+                <td>
+                    <span class="delete-btn" onclick="deletePerson(${person.id})">🗑️ Löschen</span>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+
+    function deletePerson(id) {
+        if (currentUserRole !== 'admin') {
+            alert('Nur Admins können Personen löschen!');
+            return;
+        }
+        persons = persons.filter(person => person.id !== id);
+        renderPersons();
+    }
+</script>
+
+</body>
+</html>
